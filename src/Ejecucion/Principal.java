@@ -10,6 +10,8 @@ import java.util.Scanner;
 
 public class Principal {
     public static void menuInicio(){
+
+        System.out.println("PRUEBA");
         Scanner teclado = new Scanner(System.in);
         Cliente c = new Cliente(null, 0);
         boolean condicion = true;
