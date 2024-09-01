@@ -32,7 +32,7 @@ public class Cliente {
         for (Cliente cliente : clientes) {
             if (cliente.getPin() == pin) {
                 String nombre = cliente.getNombre();
-                System.out.println(nombre);
+                //System.out.println(nombre);
                 return cliente.nombre != null ? nombre.toUpperCase() : "Nombre no encontrado";
             }
         }

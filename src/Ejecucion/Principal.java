@@ -11,7 +11,6 @@ import java.util.Scanner;
 public class Principal {
     public static void menuInicio(){
 
-        System.out.println("PRUEBA");
         Scanner teclado = new Scanner(System.in);
         Cliente c = new Cliente(null, 0);
         boolean condicion = true;
@@ -48,10 +47,10 @@ public class Principal {
         Cliente c = new Cliente(null, 0);
         Beneficiario b = new Beneficiario(null, 0, 0, null);
         Transacciones transacciones = new Transacciones();
-        Servicios ser = new Servicios();
+        Servicios ser = new Servicios(0,0,null);
         int pin = 0;
         c.clientesPredefinidos();
-
+        ser.serviosPre();
         while (!pinValido) {
             System.out.print("Pin: ");
             try {
@@ -69,8 +68,7 @@ public class Principal {
             }
         }
         do {
-
-            System.out.println(" Bienvenid@ " + c.buscarNombre(c.getPin()) + " al menú Bancorriendo");
+            System.out.println(" Bienvenid@ " + c.buscarNombre(pin) + " al menú Bancorriendo");
             System.out.println("| 1.Cuentas                                 |");
             System.out.println("| 2.Transferir dinero                       |");  // por ahora no
             System.out.println("| 3.Beneficiarios                           |");
@@ -123,16 +121,16 @@ public class Principal {
 
                         switch (servicio) {
                             case 1:
-                                ser.calculoServicio(ct,150);
+                                ser.calculoServicio(ct,ser);
                                 break;
                             case 2:
-                                ser.calculoServicio(ct,400);
+
                                 break;
                             case 3:
-                                ser.calculoServicio(ct,300);
+
                                 break;
                             case 4:
-                                ser.calculoServicio(ct,7000);
+
                                 break;
                             default:
                                 System.out.println("Opcion no encontrada.");
