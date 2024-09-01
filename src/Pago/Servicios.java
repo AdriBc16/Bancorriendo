@@ -40,8 +40,9 @@ public class Servicios {
 
     }
     // Controlar excepciones.
+
     public void calculoServicio(Cuenta cuentaCreada, Servicios deudaArreglo) {
-        boolean nroMedidorValido = false;
+        boolean servicioEncontrado = false;
         System.out.println("Selecciona el numero de cuenta: ");
         cuentaCreada.listarCuenta(client);
 
@@ -50,6 +51,7 @@ public class Servicios {
         int num = teclado.nextInt();
         for (Cuenta cuenta : cuentaCreada.cuentas) {
             if (cuenta.numCuenta == num) {
+                System.out.println(num);
                 cuentaSelec = cuenta;
                 break;
             }
@@ -59,54 +61,49 @@ public class Servicios {
             System.out.println("Seleccione el nro del medidor que desea pagar: ");
             listaDeudas(client);
             int nrM = teclado.nextInt();
-
             Servicios aguaDeuda = null;
+
             for (Servicios deudasServicio : deudaArreglo.agua) {
                 if (deudasServicio.nroMedidor == nrM) {
-                    nroMedidorValido = true;
-                    aguaDeuda = deudasServicio;
-                    break;
-                }
-            }
+                    System.out.println("Ingrese el mes que desea pagar:");
+                    String mes = teclado.next().toLowerCase().trim();
 
-            if(aguaDeuda!= null){
-                System.out.println("Ingrese el mes que desea pagar:");
-                String mes = teclado.next().toLowerCase().trim();
+                    System.out.println("Mes ingresado: '" + mes + "'");
+                    System.out.println("Mes registrado: '" + deudasServicio.mes.toLowerCase().trim() + "'");
 
-                System.out.println("Mes ingresado: " + mes );
-                System.out.println("Mes registrado: " + aguaDeuda.mes.toLowerCase().trim());
-
-                if (aguaDeuda.equals(mes.toLowerCase().trim())) {
+                    if (mes.equals(deudasServicio.mes.toLowerCase().trim())) {
+                        aguaDeuda = deudasServicio;
+                        servicioEncontrado = true;
                         if (cuentaSelec.saldo >= aguaDeuda.deuda) {
                             cuentaSelec.saldo = cuentaSelec.saldo - aguaDeuda.deuda;
+                            deudasServicio.setDeuda(aguaDeuda.deuda);
+                            System.out.println(aguaDeuda.deuda);
 
                             String fecha = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
                             String transaccion = "Deuda Agua de " + aguaDeuda.deuda + " " + cuentaSelec.moneda + " el " + fecha;
                             cuentaSelec.agregarTransaccion(transaccion);
 
                             System.out.println("Deuda pagada de " + aguaDeuda.deuda + " " + cuentaSelec.moneda + " de la cuenta " + num);
-                            aguaDeuda.deuda = 0;
+                            deudasServicio.setDeuda(0);
+                            System.out.println(aguaDeuda);
                         } else {
                             System.out.println("Saldo insuficiente.");
                         }
+                        break;
+
+                    }
                 }else{
-                    System.out.println("Mes no encontrado.");
+                    System.out.println("Numero de medidor no encontrado.");
                 }
             }
         } else {
             System.out.println("Cuenta no encontrada.");
         }
 
-        if(!nroMedidorValido){
-            System.out.println("Numero de medidor no encontrado.");
+        if (!servicioEncontrado) {
+            System.out.println("Mes no encontrado.");
         }
-
     }
-
-
-
-
-
 
     public void listaDeudas(Cliente cliente){
         if(agua.isEmpty()){
