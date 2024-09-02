@@ -139,7 +139,7 @@ public class Principal {
                         Beneficiario.listarBeneficiarios(clienteActual);
                         break;
                     case 7:
-                        //transferirDinero();
+                        transferirDinero();
                         break;
                     case 8:
                         System.out.println("Bot: Seleccione que servicio desea pagar: ");
@@ -171,7 +171,6 @@ public class Principal {
                         break;
                     case 11:
                         verExtracto();
-
                         break;
                     case 0:
                         condicion = false;
@@ -306,6 +305,77 @@ public class Principal {
         }
 
         Transacciones.debitar(cuentaSeleccionada, monto);
+    }
+
+    public static void transferirDinero() {
+        if (clienteActual.getCuentas().isEmpty()) {
+            System.out.println("Bot: No tienes cuentas para realizar una transferencia.");
+            return;
+        }
+
+        System.out.println("\nBot: Seleccione la cuenta de origen:");
+        clienteActual.listarCuentas();
+        Cuenta cuentaOrigen = null;
+        while (cuentaOrigen == null) {
+            try {
+                System.out.print("Bot: Ingrese el número de cuenta de origen: ");
+                int numCuentaOrigen = teclado.nextInt();
+                teclado.nextLine();
+                cuentaOrigen = clienteActual.buscarCuentaPorNumero(numCuentaOrigen);
+                if (cuentaOrigen == null) {
+                    System.out.println("Error: Cuenta no encontrada. Intente nuevamente.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Entrada no válida, por favor ingrese un número de cuenta válido.");
+                teclado.nextLine();
+            }
+        }
+
+        if (clienteActual.getBeneficiarios().isEmpty()) {
+            System.out.println("Bot: No tienes beneficiarios registrados.");
+            return;
+        }
+
+        System.out.println("\nBot: Seleccione un beneficiario:");
+        Beneficiario.listarBeneficiarios(clienteActual);
+        Beneficiario beneficiarioSeleccionado = null;
+        while (beneficiarioSeleccionado == null) {
+            try {
+                System.out.print("Bot: Ingrese el número de cuenta del beneficiario: ");
+                int numCuentaBeneficiario = teclado.nextInt();
+                teclado.nextLine();
+                beneficiarioSeleccionado = Beneficiario.buscarBeneficiarioPorNumero(clienteActual, numCuentaBeneficiario);
+                if (beneficiarioSeleccionado == null) {
+                    System.out.println("Error: Beneficiario no encontrado. Intente nuevamente.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Entrada no válida, por favor ingrese un número de cuenta válido.");
+                teclado.nextLine();
+            }
+        }
+
+        double monto = 0;
+        boolean montoValido = false;
+        while (!montoValido) {
+            try {
+                System.out.print("Bot: Ingrese el monto a transferir: ");
+                monto = teclado.nextDouble();
+                teclado.nextLine();
+                if (monto <= 0) {
+                    System.out.println("Error: El monto debe ser mayor a 0.");
+                } else if (cuentaOrigen.getSaldo() < monto) {
+                    System.out.println("Error: Saldo insuficiente en la cuenta de origen.");
+                } else {
+                    montoValido = true;
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Entrada no válida, por favor ingrese un monto válido.");
+                teclado.nextLine();
+            }
+        }
+
+
+        Transacciones.transferir(cuentaOrigen, beneficiarioSeleccionado, monto);
     }
 
 
