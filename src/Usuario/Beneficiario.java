@@ -4,76 +4,126 @@ import java.util.*;
 
 public class Beneficiario {
     // Atributos
-    String nombre;
-    int nroCarnet;
-    int numCuenta;
-    String banco;
-    double saldo;
-
-    //Arreglos
-    List<Beneficiario> beneficiarios= new ArrayList<>();
+    public static String nombre;
+    public static int numCuenta;
+    public static String banco;
+    public static String moneda;
 
     // Variables aparte
-    Scanner teclado = new Scanner(System.in);
+    public static Scanner teclado = new Scanner(System.in);
 
-    public Beneficiario(String nombre, int nroCarnet, int numCuenta, String banco) {
+    public Beneficiario(String nombre, int numCuenta, String banco) {
         this.nombre = nombre;
-        this.nroCarnet = nroCarnet;
         this.numCuenta = numCuenta;
         this.banco = banco;
     }
 
-    //Controlar las excepcione en todos los metdos necesarios
-    // y tambien validar el nro carnet
-    public void crearBeneficiario() {
-        System.out.print("Nombre: ");
-        nombre = teclado.next().toLowerCase();
-        System.out.print("Número de Carnet: ");
-        nroCarnet = teclado.nextInt();
-        System.out.print("Número de cuenta: ");
-        numCuenta = (int) (Math.random()*3001 + 1000);
-        System.out.print("Banco: ");
-        banco = teclado.next();
 
-        Beneficiario nuevoBeneficiario = new Beneficiario(nombre,nroCarnet,numCuenta,banco);
-        beneficiarios.add(nuevoBeneficiario);
-        System.out.println("Beneficiario " + nuevoBeneficiario.nombre + " agregado con éxito.");
+
+    public static void crearBeneficiario(Cliente cliente) {
+        int numCuenta = (int) (Math.random() * 9000 + 1000);
+
+        try {
+            System.out.print("Bot: Ingrese el nombre del beneficiario: ");
+            nombre = teclado.nextLine();
+
+
+            if (isNumeric(nombre)) {
+                throw new InputMismatchException("Se esperaba un texto, pero se ingresó un número.");
+            }
+
+            System.out.println("Bot: Número de cuenta: " + numCuenta);
+
+            System.out.print("Bot: Ingrese el banco del beneficiario: ");
+            banco = teclado.nextLine();
+
+
+            if (isNumeric(banco)) {
+                throw new InputMismatchException("Vuelva a intentarlo.");
+            }
+
+        } catch (InputMismatchException e) {
+            System.out.println("Error: " + e.getMessage());
+            return;
+        }
+
+        Beneficiario nuevoBeneficiario = new Beneficiario(nombre, numCuenta, banco);
+        cliente.agregarBeneficiario(nuevoBeneficiario);
+    }
+    private static boolean isNumeric(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
-    public void listarBeneficiarios() {
+    @Override
+    public String toString() {
+        return "Beneficiario: " +
+                "Nombre='" + nombre + '\'' +
+                ", Numero de cuenta: " + numCuenta + '\''+
+                  ", Banco: " + banco;
+
+    }
+    public static void listarBeneficiarios(Cliente cliente) {
+        List<Beneficiario> beneficiarios = cliente.getBeneficiarios();
         if (beneficiarios.isEmpty()) {
-            System.out.println("No hay beneficiarios registrados.");
+            System.out.println("Bot: No tienes beneficiarios registrados.");
         } else {
             System.out.println("Lista de beneficiarios:");
             for (Beneficiario b : beneficiarios) {
-                System.out.println("Nombre: " + b.nombre + ", Banco: " + b.banco + ", Número de cuenta: " + b.numCuenta);
+                System.out.println(b);
             }
         }
     }
 
-    public void recibirDinero(double monto) {
-        if (monto > 0) {
-            this.saldo += monto;
-            System.out.println(nombre + " ha recibido " + monto + ". Saldo actual: " + this.saldo);
-        } else {
-            System.out.println("El monto a recibir debe ser mayor a 0.");
+    public static Beneficiario buscarBeneficiarioPorNumero(Cliente cliente, int numCuenta) {
+        for (Beneficiario b : cliente.getBeneficiarios()) {
+            if (b.getNumCuenta() == numCuenta) {
+                return b;
+            }
         }
+        return null;
     }
 
-    public void transferirDinero(Beneficiario destinatario) {
-        System.out.print("Ingrese el monto que desea transferir: ");
-        double monto = teclado.nextDouble();
-        if (monto > 0 && this.saldo >= monto) {
-            this.saldo -= monto;
-            destinatario.recibirDinero(monto);
-            System.out.println(nombre + " ha transferido " + monto + " a " + destinatario.nombre + ". Saldo actual: " + this.saldo);
-        } else if (monto <= 0) {
-            System.out.println("El monto a transferir debe ser mayor a 0.");
-        } else {
-            System.out.println("Saldo insuficiente para realizar la transferencia.");
-        }
+    public static String getNombre() {
+        return nombre;
     }
 
+    public static void setNombre(String nombre) {
+        Beneficiario.nombre = nombre;
+    }
 
+    public static int getNumCuenta() {
+        return numCuenta;
+    }
 
+    public static void setNumCuenta(int numCuenta) {
+        Beneficiario.numCuenta = numCuenta;
+    }
+
+    public static String getBanco() {
+        return banco;
+    }
+
+    public static void setBanco(String banco) {
+        Beneficiario.banco = banco;
+    }
+
+    public static String getMoneda() {
+        return moneda;
+    }
+
+    public static void setMoneda(String moneda) {
+        Beneficiario.moneda = moneda;
+    }
 }
+
+
+
+
+
+
+

@@ -7,137 +7,182 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Servicios {
-    // Atributos
-    int nroMedidor;
-    int deuda;
-    String mes;
-    public double colegiatura = 7000;
+    public static Scanner teclado = new Scanner(System.in);
+    public int nroM;
+    public int monto;
+    public String mes;
+    public Servicios[] medidoresAgua = new Servicios[2];
+    public Servicios[] medidoresLuz= new Servicios[2];
+    public double colegiaturaPendiente = 7000;
 
-    // Arreglos
-    public List<Servicios> agua =new ArrayList<>();
-    public List<Servicios> luz =new ArrayList<>();
-    Scanner teclado = new Scanner(System.in);
-    Cliente client = new Cliente(null, 0);
-
-    //Constructor
-
-    public Servicios(int nroMedidor, int deuda, String mes) {
-        this.nroMedidor = nroMedidor;
-        this.deuda = deuda;
+    public Servicios(int nroM, int monto, String mes) {
+        this.nroM = nroM;
+        this.monto = monto;
         this.mes = mes;
     }
 
-    public void serviosPre(){
-        Servicios a1 = new Servicios(1212,150,"agosto");
-        Servicios a2 = new Servicios(1212,200,"julio");
-        Servicios l1 = new Servicios(2349,400,"agosto");
-        Servicios l2 = new Servicios(2349,450,"julio");
-        agua.add(a1);
-        agua.add(a2);
-        luz.add(l1);
-        luz.add(l2);
-
-
+    public void deudasAgua(){
+      medidoresAgua[0] = new Servicios(1212,150,"Agosto");
+      medidoresAgua[1]= new Servicios(9876,200,"Julio");
     }
-    // Controlar excepciones.
+    public void deudasLuz(){
+        Servicios luz1 = new Servicios(1212,400,"Agosto");
+        medidoresLuz[0]= luz1;
+        Servicios luz2= new Servicios(9876,300,"Julio");
+        medidoresLuz[1]= luz2;
+    }
 
-    public void calculoServicio(Cuenta cuentaCreada, Servicios deudaArreglo) {
-        boolean servicioEncontrado = false;
-        System.out.println("Selecciona el numero de cuenta: ");
-        cuentaCreada.listarCuenta(client);
+    public void listarAgua(){
+        for (int i = 0; i < medidoresAgua.length; i++) {
+            if (medidoresAgua[i] != null) {
+                System.out.println((i + 1) + ". " + medidoresAgua[i]);
+            }
+        }
+    }
 
-        Cuenta cuentaSelec = null;
-        System.out.print("Ingrese el numero de la cuenta ");
-        int num = teclado.nextInt();
-        for (Cuenta cuenta : cuentaCreada.cuentas) {
-            if (cuenta.numCuenta == num) {
-                System.out.println(num);
-                cuentaSelec = cuenta;
-                break;
+    public void listarLuz(){
+        for (int i = 0; i < medidoresLuz.length; i++) {
+            System.out.println(medidoresLuz[i]);
+        }
+    }
+
+
+        public void pagarAgua(Cliente clientesC) {
+            clientesC.listarCuentas();
+
+            System.out.print("Ingrese el número de cuenta para pagar: ");
+            int numeroCuenta = teclado.nextInt();
+            teclado.nextLine();
+
+            Cuenta cuentaSeleccionada = clientesC.getCuenta(numeroCuenta);
+            if (cuentaSeleccionada != null) {
+                System.out.println("Elija el medidor que desea pagar: ");
+                listarAgua();
+
+                int opcion = teclado.nextInt();
+                teclado.nextLine();
+
+                if (opcion >= 1 && opcion <= medidoresAgua.length && medidoresAgua[opcion - 1] != null) {
+                    Servicios medidorSeleccionado = medidoresAgua[opcion - 1];
+                    double montoAPagar = medidorSeleccionado.getMonto();
+
+                    if (montoAPagar > 0) {
+                        double saldoActual = cuentaSeleccionada.getSaldo();
+
+                        if (saldoActual >= montoAPagar) {
+                            cuentaSeleccionada.setSaldo(saldoActual - montoAPagar);
+                            medidorSeleccionado.setMonto(0);
+                            listarAgua();
+                            System.out.println("Pago realizado con éxito. Nuevo saldo: " + cuentaSeleccionada.getSaldo());
+                            System.out.println("Monto del medidor después del pago: " + medidorSeleccionado.getMonto());
+                        } else {
+                            System.out.println("Saldo insuficiente para realizar el pago.");
+                        }
+                    } else {
+                        System.out.println("La deuda ya ha sido pagada.");
+                    }
+                } else {
+                    System.out.println("Opción de medidor inválida.");
+                }
+            } else {
+                System.out.println("Número de cuenta no encontrado.");
             }
         }
 
-        if (cuentaSelec != null) {
-            System.out.println("Seleccione el nro del medidor que desea pagar: ");
-            listaDeudas(client);
-            int nrM = teclado.nextInt();
-            Servicios aguaDeuda = null;
+    public void pagarLuz(Cliente clientesC) {
+        clientesC.listarCuentas();
 
-            for (Servicios deudasServicio : deudaArreglo.agua) {
-                if (deudasServicio.nroMedidor == nrM) {
-                    System.out.println("Ingrese el mes que desea pagar:");
-                    String mes = teclado.next().toLowerCase().trim();
+        System.out.print("Ingrese el número de cuenta para pagar: ");
+        int numeroCuenta = teclado.nextInt();
+        teclado.nextLine();
 
-                    System.out.println("Mes ingresado: '" + mes + "'");
-                    System.out.println("Mes registrado: '" + deudasServicio.mes.toLowerCase().trim() + "'");
+        Cuenta cuentaSeleccionada = clientesC.getCuenta(numeroCuenta);
+        if (cuentaSeleccionada != null) {
+            System.out.println("Elija el medidor que desea pagar: ");
+            listarLuz();
 
-                    if (mes.equals(deudasServicio.mes.toLowerCase().trim())) {
-                        aguaDeuda = deudasServicio;
-                        servicioEncontrado = true;
-                        if (cuentaSelec.saldo >= aguaDeuda.deuda) {
-                            cuentaSelec.saldo = cuentaSelec.saldo - aguaDeuda.deuda;
-                            deudasServicio.setDeuda(aguaDeuda.deuda);
-                            System.out.println(aguaDeuda.deuda);
+            int opcion = teclado.nextInt();
+            teclado.nextLine();
 
-                            String fecha = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
-                            String transaccion = "Deuda Agua de " + aguaDeuda.deuda + " " + cuentaSelec.moneda + " el " + fecha;
-                            cuentaSelec.agregarTransaccion(transaccion);
+            if (opcion >= 1 && opcion <= medidoresLuz.length && medidoresLuz[opcion - 1] != null) {
+                Servicios medidorSeleccionado = medidoresLuz[opcion - 1];
+                double montoAPagar = medidorSeleccionado.getMonto();
 
-                            System.out.println("Deuda pagada de " + aguaDeuda.deuda + " " + cuentaSelec.moneda + " de la cuenta " + num);
-                            deudasServicio.setDeuda(0);
-                            System.out.println(aguaDeuda);
-                        } else {
-                            System.out.println("Saldo insuficiente.");
-                        }
-                        break;
+                if (montoAPagar > 0) {
+                    double saldoActual = cuentaSeleccionada.getSaldo();
 
+                    if (saldoActual >= montoAPagar) {
+                        cuentaSeleccionada.setSaldo(saldoActual - montoAPagar);
+                        medidorSeleccionado.setMonto(0);
+                        listarLuz();
+                        System.out.println("Pago realizado con éxito. Nuevo saldo: " + cuentaSeleccionada.getSaldo());
+                        System.out.println("Monto del medidor después del pago: " + medidorSeleccionado.getMonto());
+                    } else {
+                        System.out.println("Saldo insuficiente para realizar el pago.");
                     }
-                }else{
-                    System.out.println("Numero de medidor no encontrado.");
+                } else {
+                    System.out.println("La deuda ya ha sido pagada.");
                 }
+            } else {
+                System.out.println("Opción de medidor inválida.");
             }
         } else {
-            System.out.println("Cuenta no encontrada.");
-        }
-
-        if (!servicioEncontrado) {
-            System.out.println("Mes no encontrado.");
+            System.out.println("Número de cuenta no encontrado.");
         }
     }
 
-    public void listaDeudas(Cliente cliente){
-        if(agua.isEmpty()){
-            System.out.println("No tiene deudas por pagar.");
-        }else{
-            System.out.println("Deudas: ");
-            for (Servicios servicios : agua) {
-                System.out.println(servicios);
+
+        public void pagarColegiatura (Cliente clientesC) {
+            clientesC.listarCuentas();
+            System.out.print("Ingrese el número de cuenta para pagar: ");
+            int numC = teclado.nextInt();
+            teclado.nextLine();
+
+            Cuenta cuentaSeleccionada = clientesC.getCuenta(numC);
+            if (cuentaSeleccionada != null) {
+                if (cuentaSeleccionada.getSaldo() > 0) {
+                    cuentaSeleccionada.setSaldo(cuentaSeleccionada.getSaldo() - 7000);
+                    colegiaturaPendiente = 0;
+                    System.out.println(colegiaturaPendiente);
+                    System.out.println("Pago realizado con éxito. Nuevo saldo: " + cuentaSeleccionada.getSaldo());
+                    if (colegiaturaPendiente == 0) {
+                        System.out.println("La deuda ya ha sido pagada.");
+                    }
+                } else {
+                    System.out.println("Saldo insuficiente para realizar el pago.");
+                }
+            } else {
+                System.out.println("Número de cuenta no encontrado.");
             }
         }
-    }
+
+
+
+
+
 
     @Override
     public String toString() {
-        return "Servicios:" +
-                "NroMedidor=" + nroMedidor +
-                ", Deuda=" + deuda +
-                ", Mes='" + mes;
+        return "Servicios: " +
+                "NroMedidor=" + nroM +
+                ", Monto=" + monto +
+                ", Mes='" + mes ;
     }
 
-    public int getNroMedidor() {
-        return nroMedidor;
+    public int getNroM() {
+        return nroM;
     }
 
-    public void setNroMedidor(int nroMedidor) {
-        this.nroMedidor = nroMedidor;
+    public void setNroM(int nroM) {
+        this.nroM = nroM;
     }
 
-    public int getDeuda() {
-        return deuda;
+    public int getMonto() {
+        return monto;
     }
 
-    public void setDeuda(int deuda) {
-        this.deuda = deuda;
+    public void setMonto(int monto) {
+        this.monto = monto;
     }
 
     public String getMes() {
