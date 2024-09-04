@@ -3,13 +3,11 @@ package Usuario;
 import java.util.*;
 
 public class Beneficiario {
-    // Atributos
     public static String nombre;
     public static int numCuenta;
     public static String banco;
     public static String moneda;
 
-    // Variables aparte
     public static Scanner teclado = new Scanner(System.in);
 
     public Beneficiario(String nombre, int numCuenta, String banco) {
@@ -24,7 +22,7 @@ public class Beneficiario {
         int numCuenta = (int) (Math.random() * 9000 + 1000);
 
         try {
-            System.out.print("Bot: Ingrese el nombre del beneficiario: ");
+            System.out.print("Ingrese el nombre del beneficiario: ");
             nombre = teclado.nextLine();
 
 
@@ -32,9 +30,9 @@ public class Beneficiario {
                 throw new InputMismatchException("Se esperaba un texto, pero se ingresó un número.");
             }
 
-            System.out.println("Bot: Número de cuenta: " + numCuenta);
+            System.out.println("Número de cuenta: " + numCuenta);
 
-            System.out.print("Bot: Ingrese el banco del beneficiario: ");
+            System.out.print("Ingrese el banco del beneficiario: ");
             banco = teclado.nextLine();
 
 
@@ -70,7 +68,7 @@ public class Beneficiario {
     public static void listarBeneficiarios(Cliente cliente) {
         List<Beneficiario> beneficiarios = cliente.getBeneficiarios();
         if (beneficiarios.isEmpty()) {
-            System.out.println("Bot: No tienes beneficiarios registrados.");
+            System.out.println("No tienes beneficiarios registrados.");
         } else {
             System.out.println("Lista de beneficiarios:");
             for (Beneficiario b : beneficiarios) {
@@ -91,34 +89,12 @@ public class Beneficiario {
     public static String getNombre() {
         return nombre;
     }
-
-    public static void setNombre(String nombre) {
-        Beneficiario.nombre = nombre;
-    }
-
     public static int getNumCuenta() {
         return numCuenta;
     }
 
-    public static void setNumCuenta(int numCuenta) {
-        Beneficiario.numCuenta = numCuenta;
-    }
 
-    public static String getBanco() {
-        return banco;
-    }
 
-    public static void setBanco(String banco) {
-        Beneficiario.banco = banco;
-    }
-
-    public static String getMoneda() {
-        return moneda;
-    }
-
-    public static void setMoneda(String moneda) {
-        Beneficiario.moneda = moneda;
-    }
 }
 
 

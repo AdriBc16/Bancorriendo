@@ -1,9 +1,6 @@
 package Pago;
-
 import Usuario.Cliente;
 import Usuario.Cuenta;
-
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Servicios {
@@ -13,6 +10,7 @@ public class Servicios {
     public String mes;
     public Servicios[] medidoresAgua = new Servicios[2];
     public Servicios[] medidoresLuz= new Servicios[2];
+    public Servicios[] telecomunicaciones= new Servicios[2];
     public double colegiaturaPendiente = 7000;
 
     public Servicios(int nroM, int monto, String mes) {
@@ -21,15 +19,19 @@ public class Servicios {
         this.mes = mes;
     }
 
+
     public void deudasAgua(){
       medidoresAgua[0] = new Servicios(1212,150,"Agosto");
       medidoresAgua[1]= new Servicios(9876,200,"Julio");
     }
     public void deudasLuz(){
-        Servicios luz1 = new Servicios(1212,400,"Agosto");
-        medidoresLuz[0]= luz1;
-        Servicios luz2= new Servicios(9876,300,"Julio");
-        medidoresLuz[1]= luz2;
+        medidoresLuz[0]= new Servicios(1212,400,"Agosto");
+        medidoresLuz[1] = new Servicios(9876,300,"Julio");
+    }
+
+    public void deudasTelecomunicaciones(){
+        telecomunicaciones[0] = new Servicios(77651338,400,"Prepago");
+        telecomunicaciones[1]= new Servicios(76073152,300,"PostPago");
     }
 
     public void listarAgua(){
@@ -42,7 +44,19 @@ public class Servicios {
 
     public void listarLuz(){
         for (int i = 0; i < medidoresLuz.length; i++) {
-            System.out.println(medidoresLuz[i]);
+            if (medidoresLuz[i] != null) {
+                System.out.println((i + 1 ) + "." + medidoresLuz[i]);
+            }
+        }
+    }
+
+    public void listarTelecomunicaciones(){
+        for (int i = 0; i < telecomunicaciones.length ; i++) {
+            if(telecomunicaciones[i] != null){
+                for (Servicios servicios : telecomunicaciones) {
+                    System.out.println((i + 1 ) + "." + "NroTelefono : " + servicios.getNroM() + ", Monto: " + servicios.getMonto() + ", Tipo: " + servicios.getMes());
+                }
+            }
         }
     }
 
@@ -114,7 +128,6 @@ public class Servicios {
                     if (saldoActual >= montoAPagar) {
                         cuentaSeleccionada.setSaldo(saldoActual - montoAPagar);
                         medidorSeleccionado.setMonto(0);
-                        listarLuz();
                         System.out.println("Pago realizado con éxito. Nuevo saldo: " + cuentaSeleccionada.getSaldo());
                         System.out.println("Monto del medidor después del pago: " + medidorSeleccionado.getMonto());
                     } else {
@@ -156,9 +169,46 @@ public class Servicios {
             }
         }
 
+        public void pagarTelecomunicaciones(Cliente clientesC){
+            clientesC.listarCuentas();
 
+            System.out.print("Ingrese el número de cuenta para pagar: ");
+            int numeroCuenta = teclado.nextInt();
+            teclado.nextLine();
 
+            Cuenta cuentaSeleccionada = clientesC.getCuenta(numeroCuenta);
+            if (cuentaSeleccionada != null) {
+                System.out.println("Elija el nro de telefono que desea pagar: ");
+                listarTelecomunicaciones();
 
+                int opcion = teclado.nextInt();
+                teclado.nextLine();
+
+                if (opcion >= 1 && opcion <= telecomunicaciones.length && telecomunicaciones[opcion - 1] != null) {
+                    Servicios telefonoSeleccionado = medidoresLuz[opcion - 1];
+                    double montoAPagar = telefonoSeleccionado.getMonto();
+
+                    if (montoAPagar > 0) {
+                        double saldoActual = cuentaSeleccionada.getSaldo();
+
+                        if (saldoActual >= montoAPagar) {
+                            cuentaSeleccionada.setSaldo(saldoActual - montoAPagar);
+                            telefonoSeleccionado.setMonto(0);
+                            System.out.println("Pago realizado con éxito. Nuevo saldo: " + cuentaSeleccionada.getSaldo());
+                            System.out.println("Monto del telefono después del pago: " + telefonoSeleccionado.getMonto());
+                        } else {
+                            System.out.println("Saldo insuficiente para realizar el pago.");
+                        }
+                    } else {
+                        System.out.println("La deuda ya ha sido pagada.");
+                    }
+                } else {
+                    System.out.println("Opción de nro de telefono inválida.");
+                }
+            } else {
+                System.out.println("Número de cuenta no encontrado.");
+            }
+        }
 
 
     @Override
@@ -173,9 +223,6 @@ public class Servicios {
         return nroM;
     }
 
-    public void setNroM(int nroM) {
-        this.nroM = nroM;
-    }
 
     public int getMonto() {
         return monto;
@@ -189,8 +236,5 @@ public class Servicios {
         return mes;
     }
 
-    public void setMes(String mes) {
-        this.mes = mes;
-    }
 }
 

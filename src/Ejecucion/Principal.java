@@ -1,28 +1,29 @@
 package Ejecucion;
 import Pago.Servicios;
+import Pago.Transferencia;
 import Usuario.Beneficiario;
 import Usuario.Cliente;
-import Usuario.Cuenta;
 import Pago.Transacciones;
-import java.awt.*;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Principal {
 
-    private static Scanner teclado = new Scanner(System.in);
+    private static final Scanner teclado = new Scanner(System.in);
     private static Cliente clienteActual;
-    private static Servicios servicio = new Servicios(0,0,"") ;
-    private static Cuenta cuenta = new Cuenta(0,0,"");
+    private static final Servicios servicio = new Servicios(0, 0, "");
+    private static final Transacciones transacciones = new Transacciones();
+    private static final Transferencia transferencia = new Transferencia();
 
     public static void main(String[] args) {
         Cliente.clientesPredefinidos();
         servicio.deudasAgua();
         servicio.deudasLuz();
+        servicio.deudasTelecomunicaciones();
         menuInicio();
     }
 
-    public static void menuInicio(){
+    public static void menuInicio() {
 
         boolean condicion = true;
         do {
@@ -36,7 +37,7 @@ public class Principal {
             System.out.println("|_________________________________|");
 
             try {
-                System.out.print("Bot: Seleccione una opción: ");
+                System.out.print("Seleccione una opción: ");
                 int sesion = teclado.nextInt();
 
 
@@ -52,7 +53,7 @@ public class Principal {
                         break;
                     case 4:
                         condicion = false;
-                        System.out.println("Bot: Hasta luego!");
+                        System.out.println("Hasta luego!");
                         break;
                     default:
                         System.out.println("Error: Por favor seleccione una opción correcta.");
@@ -69,26 +70,25 @@ public class Principal {
     public static void iniciarSesion() {
         clienteActual = null;
         try {
-            System.out.print("Bot: Por favor, ingrese su PIN: ");
+            System.out.print("Por favor, Ingrese su PIN: ");
             int pin = teclado.nextInt();
 
             clienteActual = Cliente.buscarClientePorPin(pin);
             if (clienteActual != null) {
-                System.out.println("Bot: ¡BIENVENIDO " + clienteActual.getNombre() +  "!");
+                System.out.println("Bot: ¡BIENVENIDO " + clienteActual.getNombre() + "!");
                 menuCliente();
             } else {
                 System.out.println("Error: Cliente no encontrado.");
             }
         } catch (InputMismatchException e) {
             System.out.println("Error: Entrada de Dato no válida, por favor intente nuevamente.");
-            teclado.nextLine();
         }
     }
 
     public static void registrarCliente() {
         Cliente nuevoCliente = Cliente.registrarCliente();
         if (nuevoCliente != null) {
-            System.out.println("Bot: Cliente registrado exitosamente.");
+            System.out.println("Cliente registrado exitosamente.");
         }
     }
 
@@ -96,7 +96,7 @@ public class Principal {
         Cliente.listarClientes();
     }
 
-    public static void menuCliente(){
+    public static void menuCliente() {
         boolean condicion = true;
 
         do {
@@ -116,7 +116,7 @@ public class Principal {
             System.out.println("|__________________________________________|");
 
             try {
-                System.out.print("Bot: Seleccione una opción: ");
+                System.out.print("Seleccione una opción: ");
                 int opcion = teclado.nextInt();
 
                 switch (opcion) {
@@ -127,29 +127,29 @@ public class Principal {
                         clienteActual.listarCuentas();
                         break;
                     case 3:
-                        //transferirEntreCuentas();
+                        transferencia.transferirEntreCuentas(clienteActual);
                         break;
                     case 4:
-                        //transferenciaATerceros();
+                        transferencia.transferenciaATerceros(clienteActual);
                         break;
                     case 5:
-                       Beneficiario.crearBeneficiario(clienteActual);
+                        Beneficiario.crearBeneficiario(clienteActual);
                         break;
                     case 6:
                         Beneficiario.listarBeneficiarios(clienteActual);
                         break;
                     case 7:
-                        transferirDinero();
+                        transferencia.transferirBeneficiarioPrincipal(clienteActual);
                         break;
                     case 8:
-                        System.out.println("Bot: Seleccione que servicio desea pagar: ");
+                        System.out.println("Seleccione que servicio desea pagar: ");
                         System.out.println("1. Agua");
                         System.out.println("2. Luz");
                         System.out.println("3. Telecomunicaciones");
                         System.out.println("4. Colegiatura");
                         int seleccion = teclado.nextInt();
 
-                        switch (seleccion){
+                        switch (seleccion) {
                             case 1:
                                 servicio.pagarAgua(clienteActual);
                                 break;
@@ -157,25 +157,26 @@ public class Principal {
                                 servicio.pagarLuz(clienteActual);
                                 break;
                             case 3:
+                                servicio.pagarTelecomunicaciones(clienteActual);
                                 break;
-                                case 4:
-                            servicio.pagarColegiatura(clienteActual);
-                             break;
-                }
-
+                            case 4:
+                                servicio.pagarColegiatura(clienteActual);
+                                break;
+                        }
+                        break;
                     case 9:
-                        abonar();
+                        transacciones.abonarPrincipal(clienteActual);
                         break;
                     case 10:
-                        debitar();
+                        transacciones.debitarPrincipal(clienteActual);
                         break;
                     case 11:
-                        verExtracto();
+                        transacciones.verExtractoTransacciones(clienteActual);
                         break;
                     case 0:
                         condicion = false;
                         clienteActual = null;
-                        System.out.println("Bot: Sesión cerrada.");
+                        System.out.println("Sesión cerrada.");
                         break;
                     default:
                         System.out.println("Error: Por favor seleccione una opción válida.");
@@ -187,196 +188,5 @@ public class Principal {
             }
         } while (condicion);
     }
-
-    public static void verExtracto() {
-        if (clienteActual.getCuentas().isEmpty()) {
-            System.out.println("Bot: No tienes cuentas para ver el extracto.");
-            return;
-        }
-
-        System.out.println("\nBot: Seleccione la cuenta para ver el extracto:");
-        clienteActual.listarCuentas();
-        Cuenta cuentaSeleccionada = null;
-        while (cuentaSeleccionada == null) {
-            try {
-                System.out.print("Bot: Ingrese el número de cuenta: ");
-                int numCuenta = teclado.nextInt();
-                teclado.nextLine();
-                cuentaSeleccionada = clienteActual.buscarCuentaPorNumero(numCuenta);
-                if (cuentaSeleccionada == null) {
-                    System.out.println("Error: Cuenta no encontrada. Intente nuevamente.");
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Error: Entrada no válida, por favor ingrese un número de cuenta válido.");
-                teclado.nextLine();
-            }
-        }
-
-        cuentaSeleccionada.mostrarTransacciones();
-    }
-
-    public static void abonar() {
-        if (clienteActual.getCuentas().isEmpty()) {
-            System.out.println("Bot: No tienes cuentas para abonar dinero.");
-            return;
-        }
-
-        System.out.println("\nBot: Seleccione la cuenta en la que desea abonar dinero:");
-        clienteActual.listarCuentas();
-        Cuenta cuentaSeleccionada = null;
-        while (cuentaSeleccionada == null) {
-            try {
-                System.out.print("Bot: Ingrese el número de cuenta: ");
-                int numCuenta = teclado.nextInt();
-                teclado.nextLine();
-                cuentaSeleccionada = clienteActual.buscarCuentaPorNumero(numCuenta);
-                if (cuentaSeleccionada == null) {
-                    System.out.println("Error: Cuenta no encontrada. Intente nuevamente.");
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Error: Entrada no válida, por favor ingrese un número de cuenta válido.");
-                teclado.nextLine();
-            }
-        }
-
-        double monto = 0;
-        boolean montoValido = false;
-        while (!montoValido) {
-            try {
-                System.out.print("Bot: Ingrese el monto a abonar: ");
-                monto = teclado.nextDouble();
-                teclado.nextLine();
-                if (monto <= 0) {
-                    System.out.println("Error: El monto debe ser mayor a 0.");
-                } else {
-                    montoValido = true;
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Error: Entrada no válida, por favor ingrese un monto válido.");
-                teclado.nextLine();
-            }
-        }
-
-        Transacciones.abonar(cuentaSeleccionada, monto);
-    }
-
-    public static void debitar() {
-        if (clienteActual.getCuentas().isEmpty()) {
-            System.out.println("Bot: No tienes cuentas para debitar dinero.");
-            return;
-        }
-
-        System.out.println("\nBot: Seleccione la cuenta de la cual desea debitar dinero:");
-        clienteActual.listarCuentas();
-        Cuenta cuentaSeleccionada = null;
-        while (cuentaSeleccionada == null) {
-            try {
-                System.out.print("Bot: Ingrese el número de cuenta: ");
-                int numCuenta = teclado.nextInt();
-                teclado.nextLine();
-                cuentaSeleccionada = clienteActual.buscarCuentaPorNumero(numCuenta);
-                if (cuentaSeleccionada == null) {
-                    System.out.println("Error: Cuenta no encontrada. Intente nuevamente.");
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Error: Entrada no válida, por favor ingrese un número de cuenta válido.");
-                teclado.nextLine();
-            }
-        }
-
-        double monto = 0;
-        boolean montoValido = false;
-        while (!montoValido) {
-            try {
-                System.out.print("Bot: Ingrese el monto a debitar: ");
-                monto = teclado.nextDouble();
-                teclado.nextLine();
-                if (monto <= 0) {
-                    System.out.println("Error: El monto debe ser mayor a 0.");
-                } else if (cuentaSeleccionada.getSaldo() < monto) {
-                    System.out.println("Error: Saldo insuficiente en la cuenta.");
-                } else {
-                    montoValido = true;
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Error: Entrada no válida, por favor ingrese un monto válido.");
-                teclado.nextLine();
-            }
-        }
-
-        Transacciones.debitar(cuentaSeleccionada, monto);
-    }
-
-    public static void transferirDinero() {
-        if (clienteActual.getCuentas().isEmpty()) {
-            System.out.println("Bot: No tienes cuentas para realizar una transferencia.");
-            return;
-        }
-
-        System.out.println("\nBot: Seleccione la cuenta de origen:");
-        clienteActual.listarCuentas();
-        Cuenta cuentaOrigen = null;
-        while (cuentaOrigen == null) {
-            try {
-                System.out.print("Bot: Ingrese el número de cuenta de origen: ");
-                int numCuentaOrigen = teclado.nextInt();
-                teclado.nextLine();
-                cuentaOrigen = clienteActual.buscarCuentaPorNumero(numCuentaOrigen);
-                if (cuentaOrigen == null) {
-                    System.out.println("Error: Cuenta no encontrada. Intente nuevamente.");
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Error: Entrada no válida, por favor ingrese un número de cuenta válido.");
-                teclado.nextLine();
-            }
-        }
-
-        if (clienteActual.getBeneficiarios().isEmpty()) {
-            System.out.println("Bot: No tienes beneficiarios registrados.");
-            return;
-        }
-
-        System.out.println("\nBot: Seleccione un beneficiario:");
-        Beneficiario.listarBeneficiarios(clienteActual);
-        Beneficiario beneficiarioSeleccionado = null;
-        while (beneficiarioSeleccionado == null) {
-            try {
-                System.out.print("Bot: Ingrese el número de cuenta del beneficiario: ");
-                int numCuentaBeneficiario = teclado.nextInt();
-                teclado.nextLine();
-                beneficiarioSeleccionado = Beneficiario.buscarBeneficiarioPorNumero(clienteActual, numCuentaBeneficiario);
-                if (beneficiarioSeleccionado == null) {
-                    System.out.println("Error: Beneficiario no encontrado. Intente nuevamente.");
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Error: Entrada no válida, por favor ingrese un número de cuenta válido.");
-                teclado.nextLine();
-            }
-        }
-
-        double monto = 0;
-        boolean montoValido = false;
-        while (!montoValido) {
-            try {
-                System.out.print("Bot: Ingrese el monto a transferir: ");
-                monto = teclado.nextDouble();
-                teclado.nextLine();
-                if (monto <= 0) {
-                    System.out.println("Error: El monto debe ser mayor a 0.");
-                } else if (cuentaOrigen.getSaldo() < monto) {
-                    System.out.println("Error: Saldo insuficiente en la cuenta de origen.");
-                } else {
-                    montoValido = true;
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Error: Entrada no válida, por favor ingrese un monto válido.");
-                teclado.nextLine();
-            }
-        }
-
-
-        Transacciones.transferir(cuentaOrigen, beneficiarioSeleccionado, monto);
-    }
-
-
 }
+

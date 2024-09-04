@@ -3,17 +3,11 @@ package Usuario;
 import java.util.*;
 
 public class Cuenta {
-    //atributos
     public int numCuenta ;
     public double saldo;
     public String moneda ;
-    // arreglos
     public List<String> transacciones;
 
-    //variables aparte
-    public static Scanner teclado = new Scanner(System.in);
-
-    //Constructor
     public Cuenta(int numCuenta, double saldo, String moneda) {
         this.numCuenta = numCuenta;
         this.saldo = saldo;
@@ -48,11 +42,6 @@ public class Cuenta {
     public int getNumCuenta() {
         return numCuenta;
     }
-
-    public void setNumCuenta(int numCuenta) {
-        this.numCuenta = numCuenta;
-    }
-
     public double getSaldo() {
         return saldo;
     }
@@ -63,18 +52,6 @@ public class Cuenta {
 
     public String getMoneda() {
         return moneda;
-    }
-
-    public void setMoneda(String moneda) {
-        this.moneda = moneda;
-    }
-
-    public List<String> getTransacciones() {
-        return transacciones;
-    }
-
-    public void setTransacciones(List<String> transacciones) {
-        this.transacciones = transacciones;
     }
 
 }
