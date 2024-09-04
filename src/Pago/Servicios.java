@@ -86,6 +86,7 @@ public class Servicios {
                         if (saldoActual >= montoAPagar) {
                             cuentaSeleccionada.setSaldo(saldoActual - montoAPagar);
                             medidorSeleccionado.setMonto(0);
+                            cuentaSeleccionada.agregarTransaccion("Pago de Agua - Medidor: " + medidorSeleccionado.getNroM() + " - Monto: " + montoAPagar + " " + cuentaSeleccionada.getMoneda());
                             listarAgua();
                             System.out.println("Pago realizado con éxito. Nuevo saldo: " + cuentaSeleccionada.getSaldo());
                             System.out.println("Monto del medidor después del pago: " + medidorSeleccionado.getMonto());
@@ -128,6 +129,7 @@ public class Servicios {
                     if (saldoActual >= montoAPagar) {
                         cuentaSeleccionada.setSaldo(saldoActual - montoAPagar);
                         medidorSeleccionado.setMonto(0);
+                        cuentaSeleccionada.agregarTransaccion("Pago de Luz - Medidor: " + medidorSeleccionado.getNroM() + " - Monto: " + montoAPagar + " " + cuentaSeleccionada.getMoneda());
                         System.out.println("Pago realizado con éxito. Nuevo saldo: " + cuentaSeleccionada.getSaldo());
                         System.out.println("Monto del medidor después del pago: " + medidorSeleccionado.getMonto());
                     } else {
@@ -185,7 +187,7 @@ public class Servicios {
                 teclado.nextLine();
 
                 if (opcion >= 1 && opcion <= telecomunicaciones.length && telecomunicaciones[opcion - 1] != null) {
-                    Servicios telefonoSeleccionado = medidoresLuz[opcion - 1];
+                    Servicios telefonoSeleccionado = telecomunicaciones[opcion - 1];
                     double montoAPagar = telefonoSeleccionado.getMonto();
 
                     if (montoAPagar > 0) {
@@ -194,6 +196,7 @@ public class Servicios {
                         if (saldoActual >= montoAPagar) {
                             cuentaSeleccionada.setSaldo(saldoActual - montoAPagar);
                             telefonoSeleccionado.setMonto(0);
+                            cuentaSeleccionada.agregarTransaccion("Pago de Telecominicaciones - Medidor: " + telefonoSeleccionado.getNroM() + " - Monto: " + montoAPagar + " " + cuentaSeleccionada.getMoneda());
                             System.out.println("Pago realizado con éxito. Nuevo saldo: " + cuentaSeleccionada.getSaldo());
                             System.out.println("Monto del telefono después del pago: " + telefonoSeleccionado.getMonto());
                         } else {
